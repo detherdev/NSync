@@ -17,8 +17,8 @@
   --danger: #f87171;
   --danger-hover: #ef4444;
   --border: #2a2a3a;
-  --radius: 10px;
-  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-sm: 8px;
   --transition: 0.2s ease;
 }
 
@@ -35,6 +35,7 @@ body {
   width: 320px;
   min-height: 200px;
   overflow: hidden;
+  border-radius: 16px;
 }
 
 /* ── Container ────────────────────────────────────────────────────── */
