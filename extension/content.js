@@ -87,24 +87,29 @@
   function showToast(event, time, extra) {
     const container = getToastContainer();
 
+    // Clear any existing toasts — only show the latest
+    while (container.firstChild) {
+      container.firstChild.remove();
+    }
+
     const toast = document.createElement("div");
     Object.assign(toast.style, {
-      background: "rgba(15, 15, 20, 0.92)",
-      backdropFilter: "blur(12px)",
-      WebkitBackdropFilter: "blur(12px)",
-      border: "1px solid rgba(124, 92, 252, 0.35)",
+      background: "rgba(15, 15, 20, 0.55)",
+      backdropFilter: "blur(16px)",
+      WebkitBackdropFilter: "blur(16px)",
+      border: "1px solid rgba(124, 92, 252, 0.2)",
       borderRadius: "10px",
       padding: "10px 16px",
-      color: "#e8e8ef",
+      color: "rgba(232, 232, 239, 0.9)",
       fontSize: "13px",
       fontWeight: "500",
       display: "flex",
       alignItems: "center",
       gap: "8px",
-      boxShadow: "0 4px 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(124, 92, 252, 0.15)",
+      boxShadow: "0 4px 24px rgba(0, 0, 0, 0.3)",
       opacity: "0",
-      transform: "translateX(40px)",
-      transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+      transform: "translateX(20px)",
+      transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
       pointerEvents: "auto",
       maxWidth: "320px",
     });
@@ -136,7 +141,7 @@
 
     container.appendChild(toast);
 
-    // Animate in
+    // Animate in (slow fade)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         toast.style.opacity = "1";
@@ -147,8 +152,8 @@
     // Auto-dismiss after 3 seconds
     setTimeout(() => {
       toast.style.opacity = "0";
-      toast.style.transform = "translateX(40px)";
-      setTimeout(() => toast.remove(), 300);
+      toast.style.transform = "translateX(20px)";
+      setTimeout(() => toast.remove(), 600);
     }, 3000);
   }
 
