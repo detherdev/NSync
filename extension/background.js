@@ -9,7 +9,7 @@
 "use strict";
 
 // ── Configuration ────────────────────────────────────────────────────
-const DEFAULT_SERVER_URL = "ws://localhost:3000";
+const DEFAULT_SERVER_URL = "wss://nsync.onrender.com";
 
 // ── State ────────────────────────────────────────────────────────────
 let ws = null;
