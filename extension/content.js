@@ -94,10 +94,10 @@
 
     const toast = document.createElement("div");
     Object.assign(toast.style, {
-      background: "rgba(15, 15, 20, 0.55)",
-      backdropFilter: "blur(16px)",
-      WebkitBackdropFilter: "blur(16px)",
-      border: "1px solid rgba(124, 92, 252, 0.2)",
+      background: "rgba(15, 15, 20, 0.25)",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      border: "1px solid rgba(124, 92, 252, 0.15)",
       borderRadius: "10px",
       padding: "10px 16px",
       color: "rgba(232, 232, 239, 0.9)",
