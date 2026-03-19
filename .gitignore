@@ -1,8 +1,9 @@
 # Dependencies
 node_modules/
 
-# OS files
-.DS_Store
+# Extension build artifacts (private key!)
+*.pem
+*.crx
 Thumbs.db
 
 # Editor files
