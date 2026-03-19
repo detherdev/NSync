@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=360">
+  <title>NSync</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/>
+        </svg>
+        <h1 class="logo-text">NSync</h1>
+      </div>
+      <div class="status-badge" id="statusBadge">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-label" id="statusLabel">Disconnected</span>
+      </div>
+    </header>
+
+    <!-- Disconnected view -->
+    <section id="viewDisconnected" class="view">
+      <p class="subtitle">Sync your media. Watch together.</p>
+
+      <button class="btn btn-primary" id="btnCreate">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Create Room
+      </button>
+
+      <div class="divider"><span>or</span></div>
+
+      <div class="input-group">
+        <input
+          type="text"
+          id="inputCode"
+          class="input"
+          placeholder="Enter room code"
+          maxlength="6"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="btn btn-secondary" id="btnJoin">Join</button>
+      </div>
+
+      <p class="error-text" id="errorText"></p>
+    </section>
+
+    <!-- Connected view -->
+    <section id="viewConnected" class="view hidden">
+      <div class="room-card">
+        <span class="room-label">Room Code</span>
+        <span class="room-code" id="roomCode">------</span>
+        <button class="btn-copy" id="btnCopy" title="Copy code">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="peers-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+          <path d="M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+        <span id="peerCount">1</span> connected
+      </div>
+
+      <button class="btn btn-danger" id="btnLeave">
+        Leave Room
+      </button>
+    </section>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "mediasync-server",
+  "version": "1.0.0",
+  "description": "NSync signaling server for real-time media sync",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "npx -y nodemon index.js",
+    "test": "node --test index.test.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
