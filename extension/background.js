@@ -1,5 +1,5 @@
 /**
- * NSync — Service Worker (Background)
+ * Play inSync — Service Worker (Background)
  *
  * Maintains the WebSocket connection to the signaling server,
  * relays messages between content scripts and the server,
@@ -27,20 +27,20 @@ async function ensureContentScript(tabId) {
     // Try pinging the content script first
     const response = await chrome.tabs.sendMessage(tabId, { type: "PING_CONTENT" });
     if (response) {
-      console.log("[NSync] Content script already active on tab", tabId);
+      console.log("[inSync] Content script already active on tab", tabId);
       return;
     }
   } catch {
     // Content script not running — inject it
-    console.log("[NSync] Injecting content script into tab", tabId);
+    console.log("[inSync] Injecting content script into tab", tabId);
     try {
       await chrome.scripting.executeScript({
         target: { tabId },
         files: ["content.js"],
       });
-      console.log("[NSync] Content script injected successfully");
+      console.log("[inSync] Content script injected successfully");
     } catch (err) {
-      console.error("[NSync] Failed to inject content script:", err.message);
+      console.error("[inSync] Failed to inject content script:", err.message);
     }
   }
 }
@@ -54,7 +54,7 @@ async function injectIntoActiveTab() {
       }
     }
   } catch (err) {
-    console.error("[NSync] Error injecting into active tab:", err);
+    console.error("[inSync] Error injecting into active tab:", err);
   }
 }
 
@@ -69,7 +69,7 @@ function connect(url) {
   ws = new WebSocket(serverUrl);
 
   ws.addEventListener("open", () => {
-    console.log("[NSync] Connected to server");
+    console.log("[inSync] Connected to server");
     broadcastState();
     startKeepAlive();
   });
@@ -85,14 +85,14 @@ function connect(url) {
   });
 
   ws.addEventListener("close", () => {
-    console.log("[NSync] Disconnected from server");
+    console.log("[inSync] Disconnected from server");
     stopKeepAlive();
     roomCode = null;
     broadcastState();
   });
 
   ws.addEventListener("error", (err) => {
-    console.error("[NSync] WebSocket error:", err);
+    console.error("[inSync] WebSocket error:", err);
   });
 }
 
@@ -148,7 +148,7 @@ function handleServerMessage(data) {
 
     case "MEDIA_EVENT":
       // Forward to content script(s)
-      console.log("[NSync] Received remote event:", data.event, "time:", data.time);
+      console.log("[inSync] Received remote event:", data.event, "time:", data.time);
       forwardToContentScript({
         type: "REMOTE_COMMAND",
         event: data.event,
@@ -158,12 +158,12 @@ function handleServerMessage(data) {
 
     case "URL_CHANGE":
       // Peer navigated to a new URL — navigate our tab to match
-      console.log("[NSync] Received remote URL change:", data.url);
+      console.log("[inSync] Received remote URL change:", data.url);
       navigateToUrl(data.url);
       break;
 
     case "ERROR":
-      console.error("[NSync] Server error:", data.message);
+      console.error("[inSync] Server error:", data.message);
       broadcastState({ error: data.message });
       break;
 
@@ -189,7 +189,7 @@ async function forwardToContentScript(message) {
     if (mediaTabId != null) {
       try {
         await chrome.tabs.sendMessage(mediaTabId, message);
-        console.log("[NSync] Sent command to tracked media tab:", mediaTabId);
+        console.log("[inSync] Sent command to tracked media tab:", mediaTabId);
         return;
       } catch {
         // Tab may have closed — fall through to broadcast
@@ -199,14 +199,14 @@ async function forwardToContentScript(message) {
 
     // Fallback: broadcast to ALL tabs and let them decide
     const tabs = await chrome.tabs.query({});
-    console.log("[NSync] Broadcasting command to", tabs.length, "tabs");
+    console.log("[inSync] Broadcasting command to", tabs.length, "tabs");
     for (const tab of tabs) {
       if (tab.id) {
         chrome.tabs.sendMessage(tab.id, message).catch(() => {});
       }
     }
   } catch (err) {
-    console.error("[NSync] Error forwarding to content script:", err);
+    console.error("[inSync] Error forwarding to content script:", err);
   }
 }
 
@@ -263,7 +263,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case "MEDIA_EVENT":
       // From content script — forward to server
-      console.log("[NSync] Local media event:", message.event, "time:", message.time);
+      console.log("[inSync] Local media event:", message.event, "time:", message.time);
       // Track which tab sent the media event
       if (sender?.tab?.id) {
         mediaTabId = sender.tab.id;
@@ -280,7 +280,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Content script found a media element — remember this tab
       if (sender?.tab?.id) {
         mediaTabId = sender.tab.id;
-        console.log("[NSync] Media registered on tab:", mediaTabId);
+        console.log("[inSync] Media registered on tab:", mediaTabId);
       }
       sendResponse({ ok: true });
       break;
@@ -312,7 +312,7 @@ function waitForOpen(callback, timeout = 5000) {
       callback();
     } else if (Date.now() - start > timeout) {
       clearInterval(check);
-      console.error("[NSync] Connection timed out");
+      console.error("[inSync] Connection timed out");
       broadcastState({ error: "Connection timed out" });
     }
   }, 100);
@@ -348,7 +348,7 @@ async function navigateToUrl(url) {
       }
     }
   } catch (err) {
-    console.error("[NSync] Error navigating to URL:", err);
+    console.error("[inSync] Error navigating to URL:", err);
   }
 
   // Release lock after navigation settles
@@ -376,7 +376,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Only sync http/https URLs
   if (!changeInfo.url.startsWith("http")) return;
 
-  console.log("[NSync] Local URL change:", changeInfo.url);
+  console.log("[inSync] Local URL change:", changeInfo.url);
   sendToServer({
     type: "URL_CHANGE",
     url: changeInfo.url,

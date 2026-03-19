@@ -1,5 +1,5 @@
 /**
- * NSync — Signaling Server
+ * Play inSync — Signaling Server
  *
  * Lightweight WebSocket server that manages rooms and broadcasts
  * media sync events (play, pause, seek) to all peers in a room.
@@ -82,7 +82,7 @@ function createServer(options = {}) {
   const port = options.port || PORT;
   const wss = new WebSocketServer({ port, ...options.wssOptions });
 
-  console.log(`[NSync Server] Listening on ws://localhost:${port}`);
+  console.log(`[inSync Server] Listening on ws://localhost:${port}`);
 
   // ── Heartbeat ────────────────────────────────────────────────────
   const heartbeat = setInterval(() => {
@@ -102,7 +102,7 @@ function createServer(options = {}) {
   // ── Connection handler ───────────────────────────────────────────
   wss.on("connection", (ws) => {
     ws.isAlive = true;
-    console.log(`[NSync Server] New connection (total clients: ${wss.clients.size})`);
+    console.log(`[inSync Server] New connection (total clients: ${wss.clients.size})`);
 
     ws.on("pong", () => {
       ws.isAlive = true;
@@ -121,7 +121,7 @@ function createServer(options = {}) {
     });
 
     ws.on("close", () => {
-      console.log(`[NSync Server] Client disconnected (remaining: ${wss.clients.size - 1})`);
+      console.log(`[inSync Server] Client disconnected (remaining: ${wss.clients.size - 1})`);
       removeFromRoom(ws);
     });
 
@@ -145,7 +145,7 @@ function handleMessage(ws, data) {
       rooms.set(code, new Set([ws]));
       socketRoom.set(ws, code);
 
-      console.log(`[NSync Server] Room created: ${code}`);
+      console.log(`[inSync Server] Room created: ${code}`);
       send(ws, { type: "ROOM_CREATED", code });
       break;
     }
@@ -155,7 +155,7 @@ function handleMessage(ws, data) {
       const peers = rooms.get(code);
 
       if (!peers) {
-        console.log(`[NSync Server] Join failed — room not found: ${code}`);
+        console.log(`[inSync Server] Join failed — room not found: ${code}`);
         send(ws, { type: "ERROR", message: "Room not found" });
         return;
       }
@@ -166,7 +166,7 @@ function handleMessage(ws, data) {
       peers.add(ws);
       socketRoom.set(ws, code);
 
-      console.log(`[NSync Server] Client joined room ${code} (peers: ${peers.size})`);
+      console.log(`[inSync Server] Client joined room ${code} (peers: ${peers.size})`);
       send(ws, { type: "ROOM_JOINED", code, peerCount: peers.size });
       broadcast(code, { type: "PEER_JOINED", peerCount: peers.size }, ws);
       break;
@@ -174,7 +174,7 @@ function handleMessage(ws, data) {
 
     case "LEAVE_ROOM": {
       const code = socketRoom.get(ws);
-      console.log(`[NSync Server] Client left room ${code || "(none)"}`);
+      console.log(`[inSync Server] Client left room ${code || "(none)"}`);
       removeFromRoom(ws);
       send(ws, { type: "LEFT_ROOM" });
       break;
@@ -196,7 +196,7 @@ function handleMessage(ws, data) {
 
       const peers = rooms.get(code);
       const peerCount = peers ? peers.size - 1 : 0;
-      console.log(`[NSync Server] Broadcasting ${data.event} @ ${data.time?.toFixed(2)}s to ${peerCount} peer(s) in room ${code}`);
+      console.log(`[inSync Server] Broadcasting ${data.event} @ ${data.time?.toFixed(2)}s to ${peerCount} peer(s) in room ${code}`);
 
       // Broadcast to all other peers in the room
       broadcast(
@@ -225,7 +225,7 @@ function handleMessage(ws, data) {
 
       const peers = rooms.get(code);
       const peerCount = peers ? peers.size - 1 : 0;
-      console.log(`[NSync Server] Broadcasting URL change to ${peerCount} peer(s) in room ${code}: ${data.url}`);
+      console.log(`[inSync Server] Broadcasting URL change to ${peerCount} peer(s) in room ${code}: ${data.url}`);
 
       broadcast(
         code,

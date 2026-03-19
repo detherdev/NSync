@@ -1,5 +1,5 @@
 /**
- * NSync — Server Tests
+ * Play inSync — Server Tests
  *
  * Run with: node --test index.test.js
  */
@@ -37,7 +37,7 @@ function nextMessage(ws, timeoutMs = 2000) {
   });
 }
 
-describe("NSync Server", () => {
+describe("inSync Server", () => {
   let wss;
 
   before(() => {

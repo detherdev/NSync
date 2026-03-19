@@ -1,4 +1,4 @@
-# NSync
+# Play inSync
 
 A Chromium browser extension that syncs media playback across browsers. Create a room, share the code, and watch together in real time.
 
@@ -6,6 +6,8 @@ A Chromium browser extension that syncs media playback across browsers. Create a
 
 - **Play/Pause Sync** — press play or pause and all peers follow
 - **Seek Sync** — jump to any timestamp and everyone catches up
+- **URL Sync** — navigate to a new page and peers follow automatically
+- **Toast Notifications** — see what your peer is doing in real time
 - **Room Codes** — 6-character codes for easy sharing
 - **Works Everywhere** — YouTube, Plex, and any site with `<video>` or `<audio>` elements
 
@@ -24,7 +26,7 @@ npm start          # runs on ws://localhost:3000
 1. Open `chrome://extensions` in Chrome (or any Chromium browser)
 2. Enable **Developer Mode** (toggle in the top-right)
 3. Click **Load unpacked** → select the `extension/` folder
-4. The NSync icon will appear in your toolbar
+4. The Play inSync icon will appear in your toolbar
 
 ### 3. Create or join a room
 

@@ -1,5 +1,5 @@
 /**
- * NSync — Content Script
+ * Play inSync — Content Script
  *
  * Injected into every page. Detects the primary <video>/<audio> element,
  * listens for local playback events, applies remote sync commands,
@@ -184,19 +184,19 @@
 
   function onPlay() {
     if (remoteLock) return;
-    console.log("[NSync] Local play at", mediaElement.currentTime);
+    console.log("[inSync] Local play at", mediaElement.currentTime);
     sendMediaEvent("play", mediaElement.currentTime);
   }
 
   function onPause() {
     if (remoteLock) return;
-    console.log("[NSync] Local pause at", mediaElement.currentTime);
+    console.log("[inSync] Local pause at", mediaElement.currentTime);
     sendMediaEvent("pause", mediaElement.currentTime);
   }
 
   function onSeeked() {
     if (remoteLock) return;
-    console.log("[NSync] Local seek to", mediaElement.currentTime);
+    console.log("[inSync] Local seek to", mediaElement.currentTime);
     sendMediaEvent("seek", mediaElement.currentTime);
   }
 
@@ -212,11 +212,11 @@
 
   function applyRemoteCommand(event, time) {
     if (!mediaElement) {
-      console.warn("[NSync] Remote command received but no media element found");
+      console.warn("[inSync] Remote command received but no media element found");
       return;
     }
 
-    console.log("[NSync] Applying remote command:", event, "time:", time);
+    console.log("[inSync] Applying remote command:", event, "time:", time);
     remoteLock = true;
 
     // Show toast notification
@@ -226,7 +226,7 @@
       case "play":
         mediaElement.currentTime = time;
         mediaElement.play().catch((err) => {
-          console.warn("[NSync] play() blocked:", err.message);
+          console.warn("[inSync] play() blocked:", err.message);
         });
         break;
       case "pause":
@@ -268,7 +268,7 @@
 
     if (message.type === "REMOTE_URL") {
       // Show toast about navigation, then navigate
-      console.log("[NSync] Remote URL change:", message.url);
+      console.log("[inSync] Remote URL change:", message.url);
       showToast("url", null, message.url);
       setTimeout(() => {
         window.location.href = message.url;
@@ -292,7 +292,7 @@
     if (mediaElement) detachListeners(mediaElement);
     mediaElement = el;
     attachListeners(mediaElement);
-    console.log("[NSync] Media element found and registered");
+    console.log("[inSync] Media element found and registered");
     // Tell the background service worker about this tab
     chrome.runtime.sendMessage({ type: "REGISTER_MEDIA" }).catch(() => {});
   }

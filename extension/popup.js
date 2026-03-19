@@ -1,5 +1,5 @@
 /**
- * NSync — Popup Script
+ * Play inSync — Popup Script
  *
  * Handles UI interactions for creating/joining rooms
  * and displays connection state.
