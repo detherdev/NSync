@@ -304,3 +304,31 @@ body {
   text-align: center;
   min-height: 16px;
 }
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 20px;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+
+.footer-sep {
+  opacity: 0.4;
+}
+
+.tip-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+.tip-link:hover {
+  color: var(--accent-hover);
+}
