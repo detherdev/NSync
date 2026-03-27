@@ -7,13 +7,14 @@
 
 "use strict";
 
+const http = require("http");
 const { WebSocketServer, WebSocket } = require("ws");
 const crypto = require("crypto");
 
 // ── Configuration ────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 const HEARTBEAT_INTERVAL = 30000; // 30 seconds
-const CODE_LENGTH = 6;
+const CODE_LENGTH = 4;
 
 // ── Room store ───────────────────────────────────────────────────────
 // Map<roomCode, Set<WebSocket>>
@@ -26,8 +27,8 @@ const socketRoom = new WeakMap();
 // ── Helpers ──────────────────────────────────────────────────────────
 
 /**
- * Generate a random room code (6 uppercase alphanumeric characters).
- * Re-generates if the code already exists (extremely unlikely).
+ * Generate a random room code (4 uppercase alphanumeric characters).
+ * Re-generates if the code already exists (unlikely).
  */
 function generateRoomCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I to avoid confusion
@@ -80,9 +81,29 @@ function removeFromRoom(ws) {
 
 function createServer(options = {}) {
   const port = options.port || PORT;
-  const wss = new WebSocketServer({ port, ...options.wssOptions });
 
-  console.log(`[inSync Server] Listening on ws://localhost:${port}`);
+  // ── HTTP server (health check endpoint for UptimeRobot etc.) ────
+  const httpServer = http.createServer((req, res) => {
+    if (req.method === "GET" && req.url === "/health") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          status: "ok",
+          uptime: process.uptime(),
+          rooms: rooms.size,
+          clients: wss.clients.size,
+        })
+      );
+      return;
+    }
+
+    // Fallback for any other request
+    res.writeHead(404, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Not found" }));
+  });
+
+  // ── WebSocket server (piggybacks on the HTTP server) ────────────
+  const wss = new WebSocketServer({ server: httpServer, ...options.wssOptions });
 
   // ── Heartbeat ────────────────────────────────────────────────────
   const heartbeat = setInterval(() => {
@@ -128,6 +149,12 @@ function createServer(options = {}) {
     ws.on("error", () => {
       removeFromRoom(ws);
     });
+  });
+
+  // ── Start listening ──────────────────────────────────────────────
+  httpServer.listen(port, () => {
+    console.log(`[inSync Server] Listening on http://localhost:${port}`);
+    console.log(`[inSync Server] Health check at http://localhost:${port}/health`);
   });
 
   return wss;
