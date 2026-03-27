@@ -84,7 +84,7 @@ function createServer(options = {}) {
 
   // ── HTTP server (health check endpoint for UptimeRobot etc.) ────
   const httpServer = http.createServer((req, res) => {
-    if (req.method === "GET" && req.url === "/health") {
+    if ((req.method === "GET" || req.method === "HEAD") && req.url === "/health") {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(
         JSON.stringify({
