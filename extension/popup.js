@@ -20,17 +20,20 @@ const inputCode = document.getElementById("inputCode");
 const roomCodeEl = document.getElementById("roomCode");
 const peerCountEl = document.getElementById("peerCount");
 const errorText = document.getElementById("errorText");
+const selectTab = document.getElementById("selectTab");
 
 // ── UI state management ──────────────────────────────────────────────
 
-function showConnected(code, peerCount) {
+async function showConnected(code, peerCount, mediaTabId) {
   viewDisconnected.classList.add("hidden");
   viewConnected.classList.remove("hidden");
   statusDot.classList.add("connected");
   statusLabel.textContent = "Connected";
-  roomCodeEl.textContent = code || "------";
+  roomCodeEl.textContent = code || "----";
   peerCountEl.textContent = peerCount || 1;
   errorText.textContent = "";
+
+  await loadTabs(selectTab, mediaTabId);
 }
 
 function showDisconnected() {
@@ -51,25 +54,87 @@ function showError(message) {
 
 // ── Initialize popup with current state ──────────────────────────────
 
+async function loadTabs(selectElement, initiallySelectedId) {
+  try {
+    const tabs = await chrome.tabs.query({ windowType: "normal" });
+    const eligibleTabs = tabs.filter(t => t.url && (t.url.startsWith("http://") || t.url.startsWith("https://")));
+    
+    let defaultTabId = initiallySelectedId;
+    if (!defaultTabId) {
+      const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      defaultTabId = activeTabs[0]?.id;
+    }
+
+    selectElement.innerHTML = "";
+    
+    if (eligibleTabs.length === 0) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "No media tabs found";
+      selectElement.appendChild(option);
+      return;
+    }
+
+    eligibleTabs.forEach(tab => {
+      const option = document.createElement("option");
+      option.value = tab.id;
+      const title = tab.title || tab.url;
+      option.textContent = title.length > 45 ? title.substring(0, 45) + "..." : title;
+      if (tab.id === defaultTabId) {
+        option.selected = true;
+      }
+      selectElement.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Failed to load tabs", err);
+    selectElement.innerHTML = '<option value="">Error loading tabs</option>';
+  }
+}
+
 async function init() {
   try {
     const response = await chrome.runtime.sendMessage({ type: "GET_STATE" });
     if (response?.connected && response?.roomCode) {
       const data = await chrome.storage.session.get(["peerCount"]);
-      showConnected(response.roomCode, data.peerCount);
+      showConnected(response.roomCode, data.peerCount, response.mediaTabId);
     } else {
+      await loadTabs(selectTab);
       showDisconnected();
     }
   } catch {
+    await loadTabs(selectTab);
     showDisconnected();
   }
 }
 
+// ── Chrome tab listeners for dynamic updates ─────────────────────────
+
+async function refreshTabs() {
+  const currentVal = parseInt(selectTab.value, 10) || null;
+  await loadTabs(selectTab, currentVal);
+}
+
+chrome.tabs.onCreated.addListener(() => refreshTabs());
+chrome.tabs.onRemoved.addListener(() => refreshTabs());
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === "complete" || changeInfo.title || changeInfo.url) {
+    refreshTabs();
+  }
+});
+
 // ── Event listeners ──────────────────────────────────────────────────
+
+selectTab.addEventListener("change", () => {
+  const tabId = parseInt(selectTab.value, 10);
+  if (tabId && !viewConnected.classList.contains("hidden")) {
+    chrome.runtime.sendMessage({ type: "CHANGE_TAB", tabId });
+  }
+});
 
 btnCreate.addEventListener("click", () => {
   btnCreate.disabled = true;
-  chrome.runtime.sendMessage({ type: "CREATE_ROOM" });
+  const tabId = parseInt(selectTab.value, 10) || null;
+  chrome.runtime.sendMessage({ type: "CREATE_ROOM", tabId });
   // State will update via the message listener below
   setTimeout(() => {
     btnCreate.disabled = false;
@@ -83,7 +148,8 @@ btnJoin.addEventListener("click", () => {
     return;
   }
   btnJoin.disabled = true;
-  chrome.runtime.sendMessage({ type: "JOIN_ROOM", code });
+  const tabId = parseInt(selectTab.value, 10) || null;
+  chrome.runtime.sendMessage({ type: "JOIN_ROOM", code, tabId });
   setTimeout(() => {
     btnJoin.disabled = false;
   }, 2000);
@@ -108,7 +174,7 @@ btnLeave.addEventListener("click", () => {
 
 btnCopy.addEventListener("click", async () => {
   const code = roomCodeEl.textContent;
-  if (code && code !== "------") {
+  if (code && code !== "----") {
     await navigator.clipboard.writeText(code);
     btnCopy.title = "Copied!";
     setTimeout(() => {
@@ -122,7 +188,7 @@ btnCopy.addEventListener("click", async () => {
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "STATE_UPDATE") {
     if (message.connected && message.roomCode) {
-      showConnected(message.roomCode, message.peerCount);
+      showConnected(message.roomCode, message.peerCount, message.mediaTabId);
     } else {
       showDisconnected();
     }

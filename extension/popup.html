@@ -23,17 +23,15 @@
       </div>
     </header>
 
+    <!-- Tab selection (always visible) -->
+    <div class="input-group tab-select-group">
+      <select id="selectTab" class="select-tab" title="Select tab to mirror">
+        <option value="">Loading tabs...</option>
+      </select>
+    </div>
+
     <!-- Disconnected view -->
     <section id="viewDisconnected" class="view">
-      <p class="subtitle">Sync your media. Watch together.</p>
-
-      <!-- Tab Selection -->
-      <div class="input-group tab-select-group">
-        <select id="selectTab" class="select-tab" title="Select tab to mirror">
-          <option value="">Loading tabs...</option>
-        </select>
-      </div>
-
       <button class="btn btn-primary" id="btnCreate">
         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"/>
@@ -71,18 +69,6 @@
             <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
           </svg>
         </button>
-      </div>
-
-      <!-- Tab Info -->
-      <div class="tab-info" id="activeTabInfo" title="Currently mirrored tab">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" class="tab-icon">
-          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-          <line x1="8" y1="21" x2="16" y2="21"/>
-          <line x1="12" y1="17" x2="12" y2="21"/>
-        </svg>
-        <select id="activeTabName" class="active-tab-select" title="Change mirrored tab">
-          <option value="">Waiting for media...</option>
-        </select>
       </div>
 
       <div class="peers-info">
