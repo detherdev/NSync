@@ -21,6 +21,34 @@ const roomCodeEl = document.getElementById("roomCode");
 const peerCountEl = document.getElementById("peerCount");
 const errorText = document.getElementById("errorText");
 const selectTab = document.getElementById("selectTab");
+const btnTheme = document.getElementById("btnTheme");
+const iconSun = document.getElementById("iconSun");
+const iconMoon = document.getElementById("iconMoon");
+
+// ── Theme management ─────────────────────────────────────────────────
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  if (theme === "light") {
+    iconSun.style.display = "none";
+    iconMoon.style.display = "block";
+  } else {
+    iconSun.style.display = "block";
+    iconMoon.style.display = "none";
+  }
+}
+
+// Load saved theme
+chrome.storage.local.get(["theme"], (result) => {
+  applyTheme(result.theme || "dark");
+});
+
+btnTheme.addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme") || "dark";
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+  chrome.storage.local.set({ theme: next });
+});
 
 // ── UI state management ──────────────────────────────────────────────
 
